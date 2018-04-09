@@ -35,8 +35,8 @@ for i in $PACKAGES; do
   psql $STELLAR_HORIZON_DATABASE_URL < $HORIZON_SQL
 
   # Run updates against the correct tables
-  psql -d horizon_scenarios -c "ALTER TABLE history_ledgers add base_percentage_fee numeric(5, 4)";
-  psql -d horizon_scenarios -c "UPDATE history_ledgers set base_percentage_fee = 0.0045";
+  psql -d horizon_scenarios -c "ALTER TABLE history_ledgers add base_percentage_fee numeric(5, 4)"; || true
+  psql -d horizon_scenarios -c "UPDATE history_ledgers set base_percentage_fee = 0.0045"; || true
 
   # write horizon data to sql file
   pg_dump $DATABASE_URL \
@@ -44,8 +44,6 @@ for i in $PACKAGES; do
     | sed '/SET idle_in_transaction_session_timeout/d' \
     | sed '/SET row_security/d' \
     > $HORIZON_SQL
-
-  exit 1
 done
 
 
