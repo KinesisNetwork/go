@@ -2,6 +2,7 @@
 // sources:
 // latest.sql
 // migrations/10_add_trades_price.sql
+// migrations/11_add_base_percentage_fee_to_history_ledger.sql
 // migrations/1_initial_schema.sql
 // migrations/2_index_participants_by_toid.sql
 // migrations/3_use_sequence_in_history_accounts.sql
@@ -94,7 +95,7 @@ func latestSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "latest.sql", size: 19857, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "latest.sql", size: 19857, mode: os.FileMode(420), modTime: time.Unix(1522972112, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -114,7 +115,27 @@ func migrations10_add_trades_priceSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/10_add_trades_price.sql", size: 1220, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/10_add_trades_price.sql", size: 1220, mode: os.FileMode(420), modTime: time.Unix(1522972112, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _migrations11_add_base_percentage_fee_to_history_ledgerSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x44\xcb\xb1\x6a\x84\x30\x1c\x06\xf0\xdd\xa7\xf8\x96\x6e\x46\x32\xe8\xd4\xc9\x62\x28\x05\x29\x45\xdc\x25\xc6\x4f\x13\xb0\x89\xe4\x9f\xe3\xb8\xb7\x3f\x6e\xba\x07\xf8\x29\x85\xbf\x4c\x17\x24\xa4\x88\xae\x86\x38\x7b\x12\x2d\x4a\x82\xb7\x71\x3b\x89\xe2\x83\x20\xde\xfe\x57\xe6\x4a\x29\xe8\x46\xeb\xb6\xab\x71\xf7\xc1\x79\x64\x5e\x99\xc2\x58\x04\x16\x17\xb3\x63\x2c\xf6\x20\x76\x12\x69\x87\x6e\xda\xee\xa3\xa9\xfa\x71\x36\x13\xe6\xfe\x6b\x34\xf0\x41\x4a\xca\x8f\xe5\xe4\x76\x30\x0b\xfa\x61\xc0\x6a\x85\xcb\x5b\x2f\x2f\xfd\xf3\x3b\x9b\x6f\x33\x7d\x56\xcf\x00\x00\x00\xff\xff\x1b\xb2\x81\x03\xa2\x00\x00\x00")
+
+func migrations11_add_base_percentage_fee_to_history_ledgerSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_migrations11_add_base_percentage_fee_to_history_ledgerSql,
+		"migrations/11_add_base_percentage_fee_to_history_ledger.sql",
+	)
+}
+
+func migrations11_add_base_percentage_fee_to_history_ledgerSql() (*asset, error) {
+	bytes, err := migrations11_add_base_percentage_fee_to_history_ledgerSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "migrations/11_add_base_percentage_fee_to_history_ledger.sql", size: 162, mode: os.FileMode(420), modTime: time.Unix(1523246663, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -134,7 +155,7 @@ func migrations1_initial_schemaSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/1_initial_schema.sql", size: 10559, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/1_initial_schema.sql", size: 10559, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -154,7 +175,7 @@ func migrations2_index_participants_by_toidSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/2_index_participants_by_toid.sql", size: 277, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/2_index_participants_by_toid.sql", size: 277, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -174,7 +195,7 @@ func migrations3_use_sequence_in_history_accountsSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/3_use_sequence_in_history_accounts.sql", size: 447, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/3_use_sequence_in_history_accounts.sql", size: 447, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -194,7 +215,7 @@ func migrations4_add_protocol_versionSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/4_add_protocol_version.sql", size: 188, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/4_add_protocol_version.sql", size: 188, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -214,7 +235,7 @@ func migrations5_create_trades_tableSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/5_create_trades_table.sql", size: 1100, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/5_create_trades_table.sql", size: 1100, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -234,7 +255,7 @@ func migrations6_create_assets_tableSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/6_create_assets_table.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/6_create_assets_table.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -254,7 +275,7 @@ func migrations7_modify_trades_tableSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/7_modify_trades_table.sql", size: 2303, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/7_modify_trades_table.sql", size: 2303, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -274,7 +295,7 @@ func migrations8_add_aggregatorsSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/8_add_aggregators.sql", size: 907, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/8_add_aggregators.sql", size: 907, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -294,7 +315,7 @@ func migrations8_create_asset_stats_tableSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/8_create_asset_stats_table.sql", size: 441, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/8_create_asset_stats_table.sql", size: 441, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -314,7 +335,7 @@ func migrations9_add_header_xdrSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/9_add_header_xdr.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1522744763, 0)}
+	info := bindataFileInfo{name: "migrations/9_add_header_xdr.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1522905898, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -373,6 +394,7 @@ func AssetNames() []string {
 var _bindata = map[string]func() (*asset, error){
 	"latest.sql": latestSql,
 	"migrations/10_add_trades_price.sql": migrations10_add_trades_priceSql,
+	"migrations/11_add_base_percentage_fee_to_history_ledger.sql": migrations11_add_base_percentage_fee_to_history_ledgerSql,
 	"migrations/1_initial_schema.sql": migrations1_initial_schemaSql,
 	"migrations/2_index_participants_by_toid.sql": migrations2_index_participants_by_toidSql,
 	"migrations/3_use_sequence_in_history_accounts.sql": migrations3_use_sequence_in_history_accountsSql,
@@ -428,6 +450,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"latest.sql": &bintree{latestSql, map[string]*bintree{}},
 	"migrations": &bintree{nil, map[string]*bintree{
 		"10_add_trades_price.sql": &bintree{migrations10_add_trades_priceSql, map[string]*bintree{}},
+		"11_add_base_percentage_fee_to_history_ledger.sql": &bintree{migrations11_add_base_percentage_fee_to_history_ledgerSql, map[string]*bintree{}},
 		"1_initial_schema.sql": &bintree{migrations1_initial_schemaSql, map[string]*bintree{}},
 		"2_index_participants_by_toid.sql": &bintree{migrations2_index_participants_by_toidSql, map[string]*bintree{}},
 		"3_use_sequence_in_history_accounts.sql": &bintree{migrations3_use_sequence_in_history_accountsSql, map[string]*bintree{}},
