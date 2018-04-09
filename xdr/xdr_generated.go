@@ -5046,6 +5046,7 @@ func NewLedgerHeaderExt(v int32, value interface{}) (result LedgerHeaderExt, err
 //        uint64 idPool; // last used global ID, used for generating objects
 //
 //        uint32 baseFee;     // base fee per operation in stroops
+//        uint32 basePercentageFee; // percentage fee in basis points
 //        uint32 baseReserve; // account base reserve in stroops
 //
 //        uint32 maxTxSetSize; // maximum size a transaction set can be
@@ -5077,6 +5078,7 @@ type LedgerHeader struct {
 	InflationSeq       Uint32
 	IdPool             Uint64
 	BaseFee            Uint32
+	BasePercentageFee  Uint32
 	BaseReserve        Uint32
 	MaxTxSetSize       Uint32
 	SkipList           [4]Hash
