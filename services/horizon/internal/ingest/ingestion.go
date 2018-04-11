@@ -362,6 +362,7 @@ func (ingest *Ingestion) createInsertBuilders() {
 			"total_coins",
 			"fee_pool",
 			"base_fee",
+			"base_percentage_fee",
 			"base_reserve",
 			"max_tx_set_size",
 			"closed_at",
