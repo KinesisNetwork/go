@@ -189,6 +189,7 @@ func (ingest *Ingestion) Ledger(
 		header.Data.TotalCoins,
 		header.Data.FeePool,
 		header.Data.BaseFee,
+		header.Data.BasePercentageFee,
 		header.Data.BaseReserve,
 		header.Data.MaxTxSetSize,
 		time.Unix(header.CloseTime, 0).UTC(),
