@@ -23,6 +23,7 @@ func (this *Ledger) Populate(ctx context.Context, row history.Ledger) {
 	this.TotalCoins = amount.String(xdr.Int64(row.TotalCoins))
 	this.FeePool = amount.String(xdr.Int64(row.FeePool))
 	this.BaseFee = row.BaseFee
+	this.BasePercentageFee = row.BasePercentageFee
 	this.BaseReserve = row.BaseReserve
 	this.MaxTxSetSize = row.MaxTxSetSize
 	this.ProtocolVersion = row.ProtocolVersion
