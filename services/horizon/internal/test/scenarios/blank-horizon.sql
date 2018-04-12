@@ -292,7 +292,8 @@ CREATE TABLE history_ledgers (
     base_reserve integer NOT NULL,
     max_tx_set_size integer NOT NULL,
     protocol_version integer DEFAULT 0 NOT NULL,
-    ledger_header text
+    ledger_header text,
+    base_percentage_fee integer,
 );
 
 
