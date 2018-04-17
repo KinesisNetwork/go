@@ -173,7 +173,7 @@ func (m Defaults) MutateTransaction(o *TransactionBuilder) error {
 		o.BaseFee = DefaultBaseFee
 	}
 	if o.TX.Fee == 0 {
-		o.TX.Fee = xdr.Uint32(int(o.BaseFee) * len(o.TX.Operations))
+		o.TX.Fee = xdr.Uint64(int(o.BaseFee) * len(o.TX.Operations))
 	}
 
 	if o.NetworkPassphrase == "" {
