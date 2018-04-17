@@ -2673,7 +2673,7 @@ func NewTransactionExt(v int32, value interface{}) (result TransactionExt, err e
 //
 type Transaction struct {
 	SourceAccount AccountId
-	Fee           Uint32
+	Fee           Uint64
 	SeqNum        SequenceNumber
 	TimeBounds    *TimeBounds
 	Memo          Memo
