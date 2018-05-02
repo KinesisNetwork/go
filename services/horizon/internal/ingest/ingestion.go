@@ -317,7 +317,6 @@ func (ingest *Ingestion) Transaction(
 ) {
 	// Enquote empty signatures
 	signatures := tx.Base64Signatures()
-	log.Warnf("Transaction Fee: %i", tx.Fee())
 
 	ingest.builders[TransactionsTableName].Values(
 		id,

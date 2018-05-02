@@ -36,12 +36,7 @@ func (tx *Transaction) EnvelopeXDR() string {
 
 // Fee returns the fee that was paid for `tx`
 func (tx *Transaction) Fee() int64 {
-	var ret int64
-	err := xdr.SafeUnmarshal(tx.Envelope.Tx.Fee, &ret)
-	if err != nil {
-		panic(err)
-	}
-	return ret
+	return int64(tx.Envelope.Tx.Fee)
 }
 
 // IsSuccessful returns true when the transaction was successful.
