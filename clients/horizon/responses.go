@@ -262,7 +262,7 @@ type Transaction struct {
 	LedgerCloseTime time.Time `json:"created_at"`
 	Account         string    `json:"source_account"`
 	AccountSequence string    `json:"source_account_sequence"`
-	FeePaid         int64     `json:"fee_paid"`
+	FeePaid         string    `json:"fee_paid"`
 	OperationCount  int32     `json:"operation_count"`
 	EnvelopeXdr     string    `json:"envelope_xdr"`
 	ResultXdr       string    `json:"result_xdr"`

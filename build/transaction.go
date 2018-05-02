@@ -173,7 +173,7 @@ func (m Defaults) MutateTransaction(o *TransactionBuilder) error {
 		o.BaseFee = DefaultBaseFee
 	}
 	if o.TX.Fee == 0 {
-		o.TX.Fee = xdr.Uint64(int(o.BaseFee) * len(o.TX.Operations))
+		o.TX.Fee = xdr.Int64(int(o.BaseFee) * len(o.TX.Operations))
 	}
 
 	if o.NetworkPassphrase == "" {
@@ -257,8 +257,8 @@ func (m MemoText) MutateTransaction(o *TransactionBuilder) (err error) {
 }
 
 func (m Timebounds) MutateTransaction(o *TransactionBuilder) error {
-    o.TX.TimeBounds = &xdr.TimeBounds{MinTime: xdr.Uint64(m.MinTime), MaxTime: xdr.Uint64(m.MaxTime)}
-    return nil
+	o.TX.TimeBounds = &xdr.TimeBounds{MinTime: xdr.Uint64(m.MinTime), MaxTime: xdr.Uint64(m.MaxTime)}
+	return nil
 }
 
 // MutateTransaction for Network sets the Network ID to use when signing this transaction

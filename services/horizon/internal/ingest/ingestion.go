@@ -12,6 +12,7 @@ import (
 	"github.com/stellar/go/services/horizon/internal/db2/core"
 	"github.com/stellar/go/services/horizon/internal/db2/history"
 	"github.com/stellar/go/services/horizon/internal/db2/sqx"
+	"github.com/stellar/go/services/horizon/internal/log"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/xdr"
 )
@@ -316,6 +317,7 @@ func (ingest *Ingestion) Transaction(
 ) {
 	// Enquote empty signatures
 	signatures := tx.Base64Signatures()
+	log.Warnf("Transaction Fee: %i", tx.Fee())
 
 	ingest.builders[TransactionsTableName].Values(
 		id,
