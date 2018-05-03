@@ -12,7 +12,6 @@ import (
 	"github.com/stellar/go/services/horizon/internal/db2/core"
 	"github.com/stellar/go/services/horizon/internal/db2/history"
 	"github.com/stellar/go/services/horizon/internal/db2/sqx"
-	"github.com/stellar/go/services/horizon/internal/log"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/xdr"
 )
