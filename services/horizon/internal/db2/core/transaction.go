@@ -35,8 +35,8 @@ func (tx *Transaction) EnvelopeXDR() string {
 }
 
 // Fee returns the fee that was paid for `tx`
-func (tx *Transaction) Fee() int32 {
-	return int32(tx.Envelope.Tx.Fee)
+func (tx *Transaction) Fee() int64 {
+	return int64(tx.Envelope.Tx.Fee)
 }
 
 // IsSuccessful returns true when the transaction was successful.

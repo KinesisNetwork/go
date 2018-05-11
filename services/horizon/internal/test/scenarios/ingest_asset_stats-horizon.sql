@@ -383,7 +383,7 @@ CREATE TABLE public.history_transactions (
     application_order integer NOT NULL,
     account character varying(64) NOT NULL,
     account_sequence bigint NOT NULL,
-    fee_paid integer NOT NULL,
+    fee_paid bigint NOT NULL,
     operation_count integer NOT NULL,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
