@@ -290,6 +290,7 @@ CREATE TABLE history_ledgers (
     fee_pool bigint NOT NULL,
     base_fee integer NOT NULL,
     base_percentage_fee integer,
+    max_fee integer,
     base_reserve integer NOT NULL,
     max_tx_set_size integer NOT NULL,
     protocol_version integer DEFAULT 0 NOT NULL,

@@ -79,6 +79,7 @@ var selectLedger = sq.Select(
 	"hl.fee_pool",
 	"hl.base_fee",
 	"hl.base_percentage_fee",
+	"h1.max_fee",
 	"hl.base_reserve",
 	"hl.max_tx_set_size",
 	"hl.protocol_version",
