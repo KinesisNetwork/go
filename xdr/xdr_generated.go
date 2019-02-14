@@ -5047,7 +5047,7 @@ func NewLedgerHeaderExt(v int32, value interface{}) (result LedgerHeaderExt, err
 //
 //        uint32 baseFee;     // base fee per operation in stroops
 //        uint32 basePercentageFee; // percentage fee in basis points
-//        uint32 maxFee; // maxFee in basis points
+//        uint64 maxFee; // maxFee in basis points
 //        uint32 baseReserve; // account base reserve in stroops
 //
 //        uint32 maxTxSetSize; // maximum size a transaction set can be

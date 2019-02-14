@@ -39,7 +39,7 @@ for i in $PACKAGES; do
   psql -d horizon_scenarios -c "UPDATE history_ledgers set base_percentage_fee = 45" || true
 
   # Run updates against the correct tables
-  psql -d horizon_scenarios -c "ALTER TABLE history_ledgers add max_fee INTEGER" || true
+  psql -d horizon_scenarios -c "ALTER TABLE history_ledgers add max_fee BIGINT" || true
   psql -d horizon_scenarios -c "UPDATE history_ledgers set max_fee = 1000" || true
 
   # write horizon data to sql file

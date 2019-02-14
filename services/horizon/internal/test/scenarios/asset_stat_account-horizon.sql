@@ -306,7 +306,7 @@ CREATE TABLE public.history_ledgers (
     protocol_version integer DEFAULT 0 NOT NULL,
     ledger_header text,
     base_percentage_fee integer,
-    max_fee integer
+    max_fee bigint
 );
 
 
