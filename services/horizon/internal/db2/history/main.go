@@ -172,6 +172,7 @@ type Ledger struct {
 	FeePool            int64       `db:"fee_pool"`
 	BaseFee            int32       `db:"base_fee"`
 	BasePercentageFee  int32       `db:"base_percentage_fee"`
+	MaxFee					   int64       `db:"max_fee"`
 	BaseReserve        int32       `db:"base_reserve"`
 	MaxTxSetSize       int32       `db:"max_tx_set_size"`
 	ProtocolVersion    int32       `db:"protocol_version"`

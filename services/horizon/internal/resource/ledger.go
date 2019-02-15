@@ -24,6 +24,7 @@ func (this *Ledger) Populate(ctx context.Context, row history.Ledger) {
 	this.FeePool = amount.String(xdr.Int64(row.FeePool))
 	this.BaseFee = row.BaseFee
 	this.BasePercentageFee = row.BasePercentageFee
+	this.MaxFee = row.MaxFee
 	this.BaseReserve = row.BaseReserve
 	this.MaxTxSetSize = row.MaxTxSetSize
 	this.ProtocolVersion = row.ProtocolVersion
