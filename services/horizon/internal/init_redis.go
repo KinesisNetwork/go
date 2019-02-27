@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
-	"github.com/stellar/go/services/horizon/internal/log"
+	"github.com/gomodule/redigo/redis"
+	"github.com/stellar/go/support/log"
 )
 
 func initRedis(app *App) {
@@ -14,7 +14,6 @@ func initRedis(app *App) {
 	}
 
 	redisURL, err := url.Parse(app.config.RedisURL)
-
 	if err != nil {
 		log.Panic(err)
 	}
@@ -31,7 +30,6 @@ func initRedis(app *App) {
 	defer c.Close()
 
 	_, err = c.Do("PING")
-
 	if err != nil {
 		log.Panic(err)
 	}
@@ -49,7 +47,7 @@ func dialRedis(redisURL *url.URL) func() (redis.Conn, error) {
 		}
 
 		if pass, ok := redisURL.User.Password(); ok {
-			if _, err := c.Do("AUTH", pass); err != nil {
+			if _, err = c.Do("AUTH", pass); err != nil {
 				c.Close()
 				return nil, err
 			}

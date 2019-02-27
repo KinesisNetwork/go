@@ -3,14 +3,16 @@ package horizon
 import (
 	"net/http"
 
+	"github.com/stellar/go/protocols/horizon"
+	"github.com/stellar/go/services/horizon/internal/actions"
 	"github.com/stellar/go/services/horizon/internal/db2"
 	"github.com/stellar/go/services/horizon/internal/db2/history"
-	"github.com/stellar/go/services/horizon/internal/render/hal"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
 	"github.com/stellar/go/services/horizon/internal/render/sse"
-	"github.com/stellar/go/services/horizon/internal/resource"
+	"github.com/stellar/go/services/horizon/internal/resourceadapter"
 	"github.com/stellar/go/services/horizon/internal/txsub"
-	halRender "github.com/stellar/go/support/render/hal"
+	"github.com/stellar/go/support/errors"
+	"github.com/stellar/go/support/render/hal"
 	"github.com/stellar/go/support/render/problem"
 )
 
@@ -18,6 +20,10 @@ import (
 //
 // TransactionIndexAction: pages of transactions
 // TransactionShowAction: single transaction by sequence, by hash or id
+
+// Interface verifications
+var _ actions.JSONer = (*TransactionIndexAction)(nil)
+var _ actions.EventStreamer = (*TransactionIndexAction)(nil)
 
 // TransactionIndexAction renders a page of ledger resources, identified by
 // a normal page query.
@@ -28,24 +34,24 @@ type TransactionIndexAction struct {
 	PagingParams  db2.PageQuery
 	Records       []history.Transaction
 	Page          hal.Page
+	IncludeFailed bool
 }
 
 // JSON is a method for actions.JSON
-func (action *TransactionIndexAction) JSON() {
+func (action *TransactionIndexAction) JSON() error {
 	action.Do(
 		action.EnsureHistoryFreshness,
 		action.loadParams,
 		action.ValidateCursorWithinHistory,
 		action.loadRecords,
 		action.loadPage,
-		func() {
-			halRender.Render(action.W, action.Page)
-		},
+		func() { hal.Render(action.W, action.Page) },
 	)
+	return action.Err
 }
 
 // SSE is a method for actions.SSE
-func (action *TransactionIndexAction) SSE(stream sse.Stream) {
+func (action *TransactionIndexAction) SSE(stream *sse.Stream) error {
 	action.Setup(
 		action.EnsureHistoryFreshness,
 		action.loadParams,
@@ -58,19 +64,29 @@ func (action *TransactionIndexAction) SSE(stream sse.Stream) {
 			records := action.Records[stream.SentCount():]
 
 			for _, record := range records {
-				var res resource.Transaction
-				res.Populate(action.Ctx, record)
+				var res horizon.Transaction
+				resourceadapter.PopulateTransaction(action.R.Context(), &res, record)
 				stream.Send(sse.Event{ID: res.PagingToken(), Data: res})
 			}
 		},
 	)
+
+	return action.Err
 }
 
 func (action *TransactionIndexAction) loadParams() {
 	action.ValidateCursorAsDefault()
-	action.AccountFilter = action.GetString("account_id")
+	action.AccountFilter = action.GetAddress("account_id")
 	action.LedgerFilter = action.GetInt32("ledger_id")
 	action.PagingParams = action.GetPageQuery()
+	action.IncludeFailed = action.GetBool("include_failed")
+
+	if action.IncludeFailed == true && !action.App.config.IngestFailedTransactions {
+		err := errors.New("`include_failed` parameter is unavailable when Horizon is not ingesting failed " +
+			"transactions. Set `INGEST_FAILED_TRANSACTIONS=true` to start ingesting them.")
+		action.Err = problem.MakeInvalidFieldProblem("include_failed", err)
+		return
+	}
 }
 
 func (action *TransactionIndexAction) loadRecords() {
@@ -84,13 +100,17 @@ func (action *TransactionIndexAction) loadRecords() {
 		txs.ForLedger(action.LedgerFilter)
 	}
 
+	if !action.IncludeFailed {
+		txs.SuccessfulOnly()
+	}
+
 	action.Err = txs.Page(action.PagingParams).Select(&action.Records)
 }
 
 func (action *TransactionIndexAction) loadPage() {
 	for _, record := range action.Records {
-		var res resource.Transaction
-		res.Populate(action.Ctx, record)
+		var res horizon.Transaction
+		resourceadapter.PopulateTransaction(action.R.Context(), &res, record)
 		action.Page.Add(res)
 	}
 
@@ -101,16 +121,19 @@ func (action *TransactionIndexAction) loadPage() {
 	action.Page.PopulateLinks()
 }
 
+// Interface verification
+var _ actions.JSONer = (*TransactionShowAction)(nil)
+
 // TransactionShowAction renders a ledger found by its sequence number.
 type TransactionShowAction struct {
 	Action
 	Hash     string
 	Record   history.Transaction
-	Resource resource.Transaction
+	Resource horizon.Transaction
 }
 
 func (action *TransactionShowAction) loadParams() {
-	action.Hash = action.GetString("id")
+	action.Hash = action.GetString("tx_id")
 }
 
 func (action *TransactionShowAction) loadRecord() {
@@ -118,19 +141,23 @@ func (action *TransactionShowAction) loadRecord() {
 }
 
 func (action *TransactionShowAction) loadResource() {
-	action.Resource.Populate(action.Ctx, action.Record)
+	resourceadapter.PopulateTransaction(action.R.Context(), &action.Resource, action.Record)
 }
 
 // JSON is a method for actions.JSON
-func (action *TransactionShowAction) JSON() {
+func (action *TransactionShowAction) JSON() error {
 	action.Do(
 		action.EnsureHistoryFreshness,
 		action.loadParams,
 		action.loadRecord,
 		action.loadResource,
-		func() { halRender.Render(action.W, action.Resource) },
+		func() { hal.Render(action.W, action.Resource) },
 	)
+	return action.Err
 }
+
+// Interface verification
+var _ actions.JSONer = (*TransactionCreateAction)(nil)
 
 // TransactionCreateAction submits a transaction to the stellar-core network
 // on behalf of the requesting client.
@@ -138,19 +165,18 @@ type TransactionCreateAction struct {
 	Action
 	TX       string
 	Result   txsub.Result
-	Resource resource.TransactionSuccess
+	Resource horizon.TransactionSuccess
 }
 
 // JSON format action handler
-func (action *TransactionCreateAction) JSON() {
+func (action *TransactionCreateAction) JSON() error {
 	action.Do(
 		action.loadTX,
 		action.loadResult,
 		action.loadResource,
-
-		func() {
-			halRender.Render(action.W, action.Resource)
-		})
+		func() { hal.Render(action.W, action.Resource) },
+	)
+	return action.Err
 }
 
 func (action *TransactionCreateAction) loadTX() {
@@ -159,19 +185,19 @@ func (action *TransactionCreateAction) loadTX() {
 }
 
 func (action *TransactionCreateAction) loadResult() {
-	submission := action.App.submitter.Submit(action.Ctx, action.TX)
+	submission := action.App.submitter.Submit(action.R.Context(), action.TX)
 
 	select {
 	case result := <-submission:
 		action.Result = result
-	case <-action.Ctx.Done():
+	case <-action.R.Context().Done():
 		action.Err = &hProblem.Timeout
 	}
 }
 
 func (action *TransactionCreateAction) loadResource() {
 	if action.Result.Err == nil {
-		action.Resource.Populate(action.Ctx, action.Result)
+		resourceadapter.PopulateTransactionSuccess(action.R.Context(), &action.Resource, action.Result)
 		return
 	}
 
@@ -187,8 +213,8 @@ func (action *TransactionCreateAction) loadResource() {
 
 	switch err := action.Result.Err.(type) {
 	case *txsub.FailedTransactionError:
-		rcr := resource.TransactionResultCodes{}
-		rcr.Populate(action.Ctx, err)
+		rcr := horizon.TransactionResultCodes{}
+		resourceadapter.PopulateTransactionResultCodes(action.R.Context(), &rcr, err)
 
 		action.Err = &problem.P{
 			Type:   "transaction_failed",

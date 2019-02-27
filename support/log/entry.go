@@ -1,6 +1,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 
@@ -9,6 +10,28 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stellar/go/support/errors"
 )
+
+// Ctx appends all fields from `e` to the new logger created from `ctx`
+// logger and returns it.
+func (e *Entry) Ctx(ctx context.Context) *Entry {
+	if ctx == nil {
+		return e
+	}
+
+	found := ctx.Value(&loggerContextKey)
+	if found == nil {
+		return e
+	}
+
+	entry := found.(*Entry)
+
+	// Copy all fields from e to entry
+	for key, value := range e.Data {
+		entry = entry.WithField(key, value)
+	}
+
+	return entry
+}
 
 func (e *Entry) SetLevel(level logrus.Level) {
 	e.Logger.Level = level
@@ -101,7 +124,7 @@ func (e *Entry) Panic(args ...interface{}) {
 // be recorded (rather than outputted).  The returned function concludes the
 // test, switches the logger back into normal mode and returns a slice of all
 // raw logrus entries that were created during the test.
-func (e *Entry) StartTest(level logrus.Level) func() []*logrus.Entry {
+func (e *Entry) StartTest(level logrus.Level) func() []logrus.Entry {
 	if e.isTesting {
 		panic("cannot start logger test: already testing")
 	}
@@ -117,7 +140,7 @@ func (e *Entry) StartTest(level logrus.Level) func() []*logrus.Entry {
 	oldLevel := e.Logger.Level
 	e.Logger.Level = level
 
-	return func() []*logrus.Entry {
+	return func() []logrus.Entry {
 		e.Logger.Level = oldLevel
 		e.Logger.Out = old
 		e.removeHook(hook)

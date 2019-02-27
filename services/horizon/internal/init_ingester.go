@@ -11,15 +11,19 @@ func initIngester(app *App) {
 		return
 	}
 
-	if app.networkPassphrase == "" {
+	if app.config.NetworkPassphrase == "" {
 		log.Fatal("Cannot start ingestion without network passphrase.  Please confirm connectivity with stellar-core.")
 	}
 
 	app.ingester = ingest.New(
-		app.networkPassphrase,
+		app.config.NetworkPassphrase,
 		app.config.StellarCoreURL,
 		app.CoreSession(nil),
 		app.HorizonSession(nil),
+		ingest.Config{
+			EnableAssetStats:         app.config.EnableAssetStats,
+			IngestFailedTransactions: app.config.IngestFailedTransactions,
+		},
 	)
 
 	app.ingester.SkipCursorUpdate = app.config.SkipCursorUpdate

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/stellar/go/services/horizon/internal/context/requestid"
+	"github.com/stellar/go/services/horizon/internal/hchi"
 	"github.com/stellar/go/support/render/problem"
 )
 
@@ -12,7 +12,7 @@ import (
 // At present it adds the request's id as the problem's Instance, if available.
 func Inflate(ctx context.Context, p *problem.P) {
 	problem.Inflate(p)
-	p.Instance = requestid.FromContext(ctx)
+	p.Instance = hchi.RequestID(ctx)
 }
 
 // Well-known and reused problems below:
@@ -66,7 +66,8 @@ var (
 		Title:  "Timeout",
 		Status: http.StatusGatewayTimeout,
 		Detail: "Your request timed out before completing.  Please try your " +
-			"request again.",
+			"request again. If you are submitting a transaction make sure you are " +
+			"sending exactly the same transaction (with the same sequence number).",
 	}
 
 	// UnsupportedMediaType is a well-known problem type.  Use it as a shortcut

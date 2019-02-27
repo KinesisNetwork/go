@@ -61,6 +61,13 @@ func (q *TransactionsQ) ForLedger(seq int32) *TransactionsQ {
 	return q
 }
 
+// SuccessfulOnly changes the query to include successful transactions only.
+func (q *TransactionsQ) SuccessfulOnly() *TransactionsQ {
+	q.sql = q.sql.
+		Where("(ht.successful = true OR ht.successful IS NULL)")
+	return q
+}
+
 // Page specifies the paging constraints for the query being built by `q`.
 func (q *TransactionsQ) Page(page db2.PageQuery) *TransactionsQ {
 	if q.Err != nil {
@@ -96,6 +103,7 @@ var selectTransaction = sq.Select(
 		"ht.tx_fee_meta, " +
 		"ht.created_at, " +
 		"ht.updated_at, " +
+		"ht.successful, " +
 		"array_to_string(ht.signatures, ',') AS signatures, " +
 		"ht.memo_type, " +
 		"ht.memo, " +

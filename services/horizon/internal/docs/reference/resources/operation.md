@@ -23,6 +23,7 @@ To learn more about the concept of operations in the Stellar network, take a loo
 | [ACCOUNT_MERGE](#account-merge)               | 8      | Deletes account and transfers remaining balance to destination account.
 | [INFLATION](#inflation)                       | 9      | Runs inflation.
 | [MANAGE_DATA](#manage-data)                   | 10     | Set, modify or delete a Data Entry (name/value pair) for an account.
+| [BUMP_SEQUENCE](#bump-sequence)               | 11     | Bumps forward the sequence number of an account.
 
 
 Every operation type shares a set of common attributes and links, some operations also contain
@@ -36,6 +37,7 @@ additional attributes and links specific to that operation type.
 |--------------|--------|-----------------------------------------------------------------------------------------------------------------------------|
 | id           | number | The canonical id of this operation, suitable for use as the :id parameter for url templates that require an operation's ID. |
 | paging_token | any    | A [paging token](./page.md) suitable for use as a `cursor` parameter.                                                       |
+| transaction_successful | bool    | *From 0.17.0* Indicates if this operation is part of successful transaction. |
 | type         | string | A string representation of the type of operation.                                                                           |
 | type_i       | number | Specifies the type of operation, See "Types" section below for reference.                                                   |
 
@@ -150,6 +152,7 @@ can be either a simple native asset payment or a fiat asset payment.
   "id": 58402965295104,
   "paging_token": "58402965295104",
   "to": "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+  "transaction_successful": true,
   "type_i": 1,
   "type": "payment"
 }
@@ -212,6 +215,7 @@ A path payment operation represents a payment from one account to another throug
   "source_amount": "10.0",
   "source_max": "10.0",
   "to": "GA5WBPYA5Y4WAEHXWR2UKO2UO4BUGHUQ74EUPKON2QHV4WRHOIRNKKH2",
+  "transaction_successful": true,
   "type_i": 2,
   "type": "path_payment"
 }
@@ -284,6 +288,7 @@ offers or payments, this offer can potentially be filled.
   "selling_asset_code": "YEN",
   "selling_asset_issuer": "GDVXG2FMFFSUMMMBIUEMWPZAIU2FNCH7QNGJMWRXRD6K5FZK5KJS4DDR",
   "selling_asset_type": "credit_alphanum4",
+  "transaction_successful": true,
   "type_i": 3,
   "type": "manage_offer"
 }
@@ -333,6 +338,7 @@ As in [Manage Offer](#manage-offer) operation.
     "n": 1
   },
   "selling_asset_type": "native",
+  "transaction_successful": true,
   "type_i": 4,
   "type": "create_passive_offer"
 }
@@ -402,6 +408,7 @@ Use “Set Options” operation to set following options to your account:
   "set_flags_s": [
     "auth_required_flag"
   ],
+  "transaction_successful": true,
   "type_i": 5,
   "type": "set_options"
 }
@@ -453,6 +460,7 @@ Use “Change Trust” operation to create/update/delete a trust line from the s
   "paging_token": "574731048718337",
   "trustee": "GAC2ZUXVI5266NMMGDPBMXHH4BTZKJ7MMTGXRZGX2R5YLMFRYLJ7U5EA",
   "trustor": "GDVXG2FMFFSUMMMBIUEMWPZAIU2FNCH7QNGJMWRXRD6K5FZK5KJS4DDR",
+  "transaction_successful": true,
   "type_i": 6,
   "type": "change_trust"
 }
@@ -506,6 +514,7 @@ Heads up! Unless the issuing account has `AUTH_REVOCABLE_FLAG` set than the "aut
   "paging_token": "34359742465",
   "trustee": "GC23QF2HUE52AMXUFUH3AYJAXXGXXV2VHXYYR6EYXETPKDXZSAW67XO4",
   "trustor": "GBXGQJWVLWOYHFLVTKWV5FGHA3LNYY2JQKM7OAJAUEQFU6LPCSEFVXON",
+  "transaction_successful": true,
   "type_i": 7,
   "type": "allow_trust"
 }
@@ -547,6 +556,7 @@ Removes the account and transfers all remaining XLM to the destination account.
   "id": 799357838299137,
   "into": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
   "paging_token": "799357838299137",
+  "transaction_successful": true,
   "type_i": 8,
   "type": "account_merge"
 }
@@ -581,6 +591,7 @@ Runs inflation.
   },
   "id": 12884914177,
   "paging_token": "12884914177",
+  "transaction_successful": true,
   "type_i": 9,
   "type": "inflation"
 }
@@ -617,8 +628,50 @@ Set, modify or delete a Data Entry (name/value pair) for an account.
   "source_account": "GCGG3CIRBG2TTBR4HYZJ7JLDRFKZIYOAHFXRWLU62CA2QN52P2SUQNPJ",
   "type": "manage_data",
   "type_i": 10,
+  "transaction_successful": true,
   "name": "lang",
   "value": "aW5kb25lc2lhbg=="
+}
+```
+
+<a id="bump-sequence"></a>
+### Bump Sequence
+
+Bumps forward the sequence number of the source account of the operation, allowing it to invalidate any transactions with a smaller sequence number.
+
+#### Attributes
+
+| Field      |  Type  | Description                                                      |
+| ---------- | ------ | ---------------------------------------------------------------- |
+| bumpTo     | number | Desired value for the operation’s source account sequence number.|
+
+#### Example
+```json
+{
+  "_links": {
+    "self": {
+      "href": "/operations/1743756726273"
+    },
+    "transaction": {
+      "href": "/transactions/328436a8dffaf6ca33c08a93279234c7d3eaf1c028804152614187dc76b7168d"
+    },
+    "effects": {
+      "href": "/operations/1743756726273/effects"
+    },
+    "succeeds": {
+      "href": "/effects?order=desc&cursor=1743756726273"
+    },
+    "precedes": {
+      "href": "/effects?order=asc&cursor=1743756726273"
+    }
+  },
+  "id": "1743756726273",
+  "paging_token": "1743756726273",
+  "source_account": "GBHPJ3VMVT3X7Y6HIIAPK7YPTZCF3CWO4557BKGX2GVO4O7EZHIBELLH",
+  "type": "bump_sequence",
+  "type_i": 11,
+  "transaction_hash": "328436a8dffaf6ca33c08a93279234c7d3eaf1c028804152614187dc76b7168d",
+  "bump_to": "1273737228"
 }
 ```
 

@@ -4,13 +4,17 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/stellar/go/services/horizon/internal/actions"
 	"github.com/stellar/go/services/horizon/internal/db2"
 	"github.com/stellar/go/services/horizon/internal/db2/history"
-	"github.com/stellar/go/services/horizon/internal/render/hal"
 	"github.com/stellar/go/services/horizon/internal/render/sse"
-	"github.com/stellar/go/services/horizon/internal/resource"
-	halRender "github.com/stellar/go/support/render/hal"
+	"github.com/stellar/go/services/horizon/internal/resourceadapter"
+	"github.com/stellar/go/support/render/hal"
 )
+
+// Interface verifications
+var _ actions.JSONer = (*PaymentsIndexAction)(nil)
+var _ actions.EventStreamer = (*PaymentsIndexAction)(nil)
 
 // PaymentsIndexAction returns a paged slice of payments based upon the provided
 // filters
@@ -21,12 +25,12 @@ type PaymentsIndexAction struct {
 	TransactionFilter string
 	PagingParams      db2.PageQuery
 	Records           []history.Operation
-	Ledgers           history.LedgerCache
+	Ledgers           *history.LedgerCache
 	Page              hal.Page
 }
 
 // JSON is a method for actions.JSON
-func (action *PaymentsIndexAction) JSON() {
+func (action *PaymentsIndexAction) JSON() error {
 	action.Do(
 		action.EnsureHistoryFreshness,
 		action.loadParams,
@@ -34,14 +38,13 @@ func (action *PaymentsIndexAction) JSON() {
 		action.loadRecords,
 		action.loadLedgers,
 		action.loadPage,
+		func() { hal.Render(action.W, action.Page) },
 	)
-	action.Do(func() {
-		halRender.Render(action.W, action.Page)
-	})
+	return action.Err
 }
 
 // SSE is a method for actions.SSE
-func (action *PaymentsIndexAction) SSE(stream sse.Stream) {
+func (action *PaymentsIndexAction) SSE(stream *sse.Stream) error {
 	action.Setup(
 		action.EnsureHistoryFreshness,
 		action.loadParams,
@@ -57,15 +60,13 @@ func (action *PaymentsIndexAction) SSE(stream sse.Stream) {
 			for _, record := range records {
 				ledger, found := action.Ledgers.Records[record.LedgerSequence()]
 				if !found {
-					msg := fmt.Sprintf("could not find ledger data for sequence %d", record.LedgerSequence())
-					stream.Err(errors.New(msg))
+					action.Err = errors.New(fmt.Sprintf("could not find ledger data for sequence %d", record.LedgerSequence()))
 					return
 				}
 
-				res, err := resource.NewOperation(action.Ctx, record, ledger)
-
+				res, err := resourceadapter.NewOperation(action.R.Context(), record, ledger)
 				if err != nil {
-					stream.Err(err)
+					action.Err = err
 					return
 				}
 
@@ -74,12 +75,15 @@ func (action *PaymentsIndexAction) SSE(stream sse.Stream) {
 					Data: res,
 				})
 			}
-		})
+		},
+	)
+
+	return action.Err
 }
 
 func (action *PaymentsIndexAction) loadParams() {
 	action.ValidateCursorAsDefault()
-	action.AccountFilter = action.GetString("account_id")
+	action.AccountFilter = action.GetAddress("account_id")
 	action.LedgerFilter = action.GetInt32("ledger_id")
 	action.TransactionFilter = action.GetString("tx_id")
 	action.PagingParams = action.GetPageQuery()
@@ -103,6 +107,8 @@ func (action *PaymentsIndexAction) loadRecords() {
 
 // loadLedgers populates the ledger cache for this action
 func (action *PaymentsIndexAction) loadLedgers() {
+	action.Ledgers = &history.LedgerCache{}
+
 	for _, op := range action.Records {
 		action.Ledgers.Queue(op.LedgerSequence())
 	}
@@ -121,7 +127,7 @@ func (action *PaymentsIndexAction) loadPage() {
 			return
 		}
 
-		res, action.Err = resource.NewOperation(action.Ctx, record, ledger)
+		res, action.Err = resourceadapter.NewOperation(action.R.Context(), record, ledger)
 		if action.Err != nil {
 			return
 		}

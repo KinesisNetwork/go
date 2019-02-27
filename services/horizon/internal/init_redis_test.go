@@ -3,23 +3,22 @@ package horizon
 import (
 	"testing"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRedis_Config(t *testing.T) {
-
 	c := NewTestConfig()
 
 	// app.redis is nil when no RedisURL is set
 	c.RedisURL = ""
-	app, _ := NewApp(c)
+	app := NewApp(c)
 	assert.Nil(t, app.redis)
 	app.Close()
 
 	// app.redis gets set when RedisURL is set
 	c.RedisURL = "redis://127.0.0.1:6379/"
-	app, _ = NewApp(c)
+	app = NewApp(c)
 	assert.NotNil(t, app.redis)
 
 	// redis connection works

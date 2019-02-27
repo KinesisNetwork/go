@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"database/sql"
 	"testing"
 
 	sq "github.com/Masterminds/squirrel"
@@ -40,7 +41,7 @@ func TestEmptySignature(t *testing.T) {
 
 	transactionFee := &core.TransactionFee{}
 
-	ingestion.Transaction(1, transaction, transactionFee)
+	ingestion.Transaction(true, 1, transaction, transactionFee)
 	assert.Equal(t, 1, len(ingestion.builders[TransactionsTableName].rows))
 
 	err := ingestion.Flush()
@@ -55,7 +56,7 @@ func TestAssetIngest(t *testing.T) {
 
 	tt := test.Start(t).ScenarioWithoutHorizon("kahuna")
 	defer tt.Finish()
-	s := ingest(tt)
+	s := ingest(tt, Config{EnableAssetStats: true})
 	tt.Require.NoError(s.Err)
 	q := history.Q{Session: s.Ingestion.DB}
 
@@ -75,7 +76,7 @@ func TestAssetIngest(t *testing.T) {
 func TestAssetStatsIngest(t *testing.T) {
 	tt := test.Start(t).ScenarioWithoutHorizon("ingest_asset_stats")
 	defer tt.Finish()
-	s := ingest(tt)
+	s := ingest(tt, Config{EnableAssetStats: true})
 	tt.Require.NoError(s.Err)
 	q := history.Q{Session: s.Ingestion.DB}
 
@@ -139,12 +140,85 @@ func TestAssetStatsIngest(t *testing.T) {
 	}, assetStats[2])
 }
 
+func TestAssetStatsDisabledIngest(t *testing.T) {
+	tt := test.Start(t).ScenarioWithoutHorizon("ingest_asset_stats")
+	defer tt.Finish()
+	s := ingest(tt, Config{EnableAssetStats: false})
+	tt.Require.NoError(s.Err)
+	q := history.Q{Session: s.Ingestion.DB}
+
+	type AssetStatResult struct {
+		Type        string `db:"asset_type"`
+		Code        string `db:"asset_code"`
+		Issuer      string `db:"asset_issuer"`
+		Amount      int64  `db:"amount"`
+		NumAccounts int32  `db:"num_accounts"`
+		Flags       int8   `db:"flags"`
+		Toml        string `db:"toml"`
+	}
+	assetStats := []AssetStatResult{}
+	err := q.Select(
+		&assetStats,
+		sq.
+			Select(
+				"hist.asset_type",
+				"hist.asset_code",
+				"hist.asset_issuer",
+				"stats.amount",
+				"stats.num_accounts",
+				"stats.flags",
+				"stats.toml",
+			).
+			From("history_assets hist").
+			Join("asset_stats stats ON hist.id = stats.id").
+			OrderBy("hist.asset_code ASC", "hist.asset_issuer ASC"),
+	)
+	tt.Require.NoError(err)
+	tt.Assert.Equal(0, len(assetStats))
+}
+
+func TestIngestFailedTransactionsEnabled(t *testing.T) {
+	tt := test.Start(t).ScenarioWithoutHorizon("failed_transactions")
+	defer tt.Finish()
+	s := ingest(tt, Config{EnableAssetStats: false, IngestFailedTransactions: true})
+	tt.Require.NoError(s.Err)
+	q := history.Q{Session: s.Ingestion.DB}
+
+	tx := history.Transaction{}
+	err := q.TransactionByHash(&tx, "aa168f12124b7c196c0adaee7c73a64d37f99428cacb59a91ff389626845e7cf")
+	tt.Require.NoError(err)
+	tt.Assert.False(*tx.Successful)
+
+	tx = history.Transaction{}
+	err = q.TransactionByHash(&tx, "56e3216045d579bea40f2d35a09406de3a894ecb5be70dbda5ec9c0427a0d5a1")
+	tt.Require.NoError(err)
+	tt.Assert.True(*tx.Successful)
+}
+
+func TestIngestFailedTransactionsDisabled(t *testing.T) {
+	tt := test.Start(t).ScenarioWithoutHorizon("failed_transactions")
+	defer tt.Finish()
+	s := ingest(tt, Config{EnableAssetStats: false, IngestFailedTransactions: false})
+	tt.Require.NoError(s.Err)
+	q := history.Q{Session: s.Ingestion.DB}
+
+	tx := history.Transaction{}
+	err := q.TransactionByHash(&tx, "aa168f12124b7c196c0adaee7c73a64d37f99428cacb59a91ff389626845e7cf")
+	tt.Require.Error(err)
+	tt.Require.Equal(err, sql.ErrNoRows)
+
+	tx = history.Transaction{}
+	err = q.TransactionByHash(&tx, "56e3216045d579bea40f2d35a09406de3a894ecb5be70dbda5ec9c0427a0d5a1")
+	tt.Require.NoError(err)
+	tt.Assert.True(*tx.Successful)
+}
+
 func TestTradeIngestTimestamp(t *testing.T) {
 	//ingest trade scenario and verify that the trade timestamp
 	//matches the appropriate ledger's timestamp
 	tt := test.Start(t).ScenarioWithoutHorizon("trades")
 	defer tt.Finish()
-	s := ingest(tt)
+	s := ingest(tt, Config{EnableAssetStats: false})
 	q := history.Q{Session: s.Ingestion.DB}
 
 	var ledgers []history.Ledger
