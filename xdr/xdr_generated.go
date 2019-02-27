@@ -2752,64 +2752,6 @@ var (
 	_ encoding.BinaryUnmarshaler = (*LedgerHeaderExt)(nil)
 )
 
-// LedgerHeader is an XDR Struct defines as:
-//
-//   struct LedgerHeader
-//    {
-//        uint32 ledgerVersion;    // the protocol version of the ledger
-//        Hash previousLedgerHash; // hash of the previous ledger header
-//        StellarValue scpValue;   // what consensus agreed to
-//        Hash txSetResultHash;    // the TransactionResultSet that led to this ledger
-//        Hash bucketListHash;     // hash of the ledger state
-//
-//        uint32 ledgerSeq; // sequence number of this ledger
-//
-//        int64 totalCoins; // total number of stroops in existence.
-//                          // 10,000,000 stroops in 1 XLM
-//
-//        int64 feePool;       // fees burned since last inflation run
-//        uint32 inflationSeq; // inflation sequence number
-//
-//        uint64 idPool; // last used global ID, used for generating objects
-//
-//        uint32 baseFee;     // base fee per operation in stroops
-//        uint32 baseReserve; // account base reserve in stroops
-//
-//        uint32 maxTxSetSize; // maximum size a transaction set can be
-//
-//        Hash skipList[4]; // hashes of ledgers in the past. allows you to jump back
-//                          // in time without walking the chain back ledger by ledger
-//                          // each slot contains the oldest ledger that is mod of
-//                          // either 50  5000  50000 or 500000 depending on index
-//                          // skipList[0] mod(50), skipList[1] mod(5000), etc
-//
-//        // reserved for future use
-//        union switch (int v)
-//        {
-//        case 0:
-//            void;
-//        }
-//        ext;
-//    };
-//
-type LedgerHeader struct {
-	LedgerVersion      Uint32
-	PreviousLedgerHash Hash
-	ScpValue           StellarValue
-	TxSetResultHash    Hash
-	BucketListHash     Hash
-	LedgerSeq          Uint32
-	TotalCoins         Int64
-	FeePool            Int64
-	InflationSeq       Uint32
-	IdPool             Uint64
-	BaseFee            Uint32
-	BaseReserve        Uint32
-	MaxTxSetSize       Uint32
-	SkipList           [4]Hash
-	Ext                LedgerHeaderExt
-}
-
 // MarshalBinary implements encoding.BinaryMarshaler.
 func (s LedgerHeader) MarshalBinary() ([]byte, error) {
 	b := new(bytes.Buffer)
@@ -7294,15 +7236,7 @@ var (
 //        ext;
 //    };
 //
-type Transaction struct {
-	SourceAccount AccountId
-	Fee           Uint32
-	SeqNum        SequenceNumber
-	TimeBounds    *TimeBounds
-	Memo          Memo
-	Operations    []Operation `xdrmaxsize:"100"`
-	Ext           TransactionExt
-}
+
 
 // MarshalBinary implements encoding.BinaryMarshaler.
 func (s Transaction) MarshalBinary() ([]byte, error) {
@@ -7321,20 +7255,6 @@ var (
 	_ encoding.BinaryMarshaler   = (*Transaction)(nil)
 	_ encoding.BinaryUnmarshaler = (*Transaction)(nil)
 )
-
-// TransactionSignaturePayloadTaggedTransaction is an XDR NestedUnion defines as:
-//
-//   union switch (EnvelopeType type)
-//        {
-//        case ENVELOPE_TYPE_TX:
-//            Transaction tx;
-//            /* All other values of type are invalid */
-//        }
-//
-type TransactionSignaturePayloadTaggedTransaction struct {
-	Type EnvelopeType
-	Tx   *Transaction
-}
 
 // SwitchFieldName returns the field name in which this union's
 // discriminant is stored
