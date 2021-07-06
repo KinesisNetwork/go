@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"bitbucket.org/ww/goautoneg"
+	"github.com/munnerz/goautoneg"
 	"github.com/stellar/go/support/log"
 )
 

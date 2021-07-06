@@ -1,8 +1,8 @@
 hash: 7eac67607acc35ee775cfd4301d326fa205f7d0e95836f36dd934c5ccd9fc171
 updated: 2017-12-22T11:51:26.139292-09:00
 imports:
-- name: bitbucket.org/ww/goautoneg
-  version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
+- name: github.com/munnerz/goautoneg
+  version: a7dc8b61c822528f973a5e4e7b272055c6fdb43e
 - name: github.com/agl/ed25519
   version: 278e1ec8e8a6e017cd07577924d6766039146ced
   repo: https://github.com/agl/ed25519
@@ -13,7 +13,7 @@ imports:
   repo: https://github.com/ajg/form
 - name: github.com/asaskevich/govalidator
   version: f0666aa80d7dcf75bd564ae8717b952d74a29d6a
-  repo: https://github.com/stellar/govalidator.git
+  repo: https://github.com/asaskevich/govalidator.git
 - name: github.com/aws/aws-sdk-go
   version: 8649d278323ebf6bd20c9cd56ecb152b1c617375
   repo: https://github.com/aws/aws-sdk-go
